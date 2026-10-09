@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buvette — Fianchetto du Roi</title>
+    <style>
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      :root { font-family: system-ui, sans-serif; color: #0a0a0a; background: #f4f4f2; }
+      body { margin: 0; }
+      header { background: #0a0a0a; color: #fff; padding: 14px 16px; display: flex; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+      .marque { display: flex; align-items: center; gap: 14px; }
+      .marque svg { width: 52px; height: 52px; flex-shrink: 0; }
+      .marque h1 { font-size: 20px; margin: 0; letter-spacing: 3px; font-weight: 800; text-transform: uppercase; }
+      .marque .sous { font-size: 12px; color: #a3a3a3; margin: 2px 0 0; letter-spacing: 1px; }
+      .bandeau { background: #0a0a0a; height: 6px;
+        background-image: linear-gradient(45deg, transparent 25%, #FFD500 25% 50%, transparent 50% 75%, #FFD500 75%);
+        background-size: 12px 12px; opacity: .95; }
+      nav { display: flex; background: #fff; border-bottom: 2px solid #0a0a0a; }
+      nav button { flex: 1; padding: 13px 4px; font-size: 14px; font-weight: 700; border: none; background: none; color: #737373; cursor: pointer; letter-spacing: .5px; }
+      nav button.actif { color: #0a0a0a; background: #FFD500; box-shadow: inset 0 -4px 0 #0a0a0a; }
+      main { padding: 16px; max-width: 900px; margin: 0 auto; }
+      .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+      .carre { aspect-ratio: 1; background: #fff; border: 2px solid #e5e5e5; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; font: inherit; transition: transform .05s, border-color .1s; }
+      .carre:active { transform: scale(.95); }
+      .carre:hover:not(:disabled) { border-color: #FFD500; box-shadow: 0 2px 8px rgba(255,213,0,.5); }
+      .carre:disabled { background: #ececec; color: #a3a3a3; cursor: not-allowed; }
+      .carre .ico { font-size: 42px; }
+      .carre .nom { font-weight: 700; font-size: 14px; }
+      .carre .info { font-size: 11px; color: #737373; }
+      .panel { background: #fff; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 16px; margin-bottom: 16px; border: 3px solid #FFD500; }
+      .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .btn-gros { padding: 28px 8px; border-radius: 16px; font-size: 18px; font-weight: 800; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); transition: transform .05s; letter-spacing: 1px; }
+      .btn-gros:active { transform: scale(.95); }
+      .btn-gros .sous { font-size: 13px; font-weight: 400; margin-top: 4px; letter-spacing: 0; }
+      .jaune { background: #FFD500; color: #0a0a0a; border: none; }
+      .blanc { background: #fff; color: #0a0a0a; border: 2px solid #0a0a0a; }
+      h2 { font-size: 16px; margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+      .bloc { background: #fff; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.1); overflow: hidden; margin-bottom: 16px; }
+      .bloc h3 { margin: 0; padding: 12px 16px; border-bottom: 1px solid #e5e5e5; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; }
+      .bloc ul { list-style: none; margin: 0; padding: 0; max-height: 380px; overflow-y: auto; }
+      .bloc li { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #f4f4f2; font-size: 14px; }
+      .bloc li .heure { font-size: 11px; color: #a3a3a3; }
+      .pos { color: #059669; font-weight: 700; } .neg { color: #dc2626; font-weight: 700; } .nul { color: #a3a3a3; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+      .stat { background: #fff; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+      .stat .l { font-size: 10px; text-transform: uppercase; color: #737373; letter-spacing: 1px; }
+      .stat .v { font-size: 18px; font-weight: 700; margin: 4px 0 0; }
+      .card-ent { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 16px; padding: 16px; }
+      .card-ent .l { font-size: 11px; text-transform: uppercase; color: #047857; font-weight: 700; margin: 0; letter-spacing: 1px; }
+      .card-ent .v { font-size: 24px; font-weight: 800; color: #047857; margin: 4px 0 0; }
+      .card-sor { background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px; padding: 16px; }
+      .card-sor .l { font-size: 11px; text-transform: uppercase; color: #b91c1c; font-weight: 700; margin: 0; letter-spacing: 1px; }
+      .card-sor .v { font-size: 24px; font-weight: 800; color: #b91c1c; margin: 4px 0 0; }
+      .solde { background: #0a0a0a; color: #fff; border-radius: 16px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+      .solde .l { font-size: 11px; text-transform: uppercase; color: #a3a3a3; margin: 0; letter-spacing: 1px; }
+      .solde .v { font-size: 24px; font-weight: 800; margin: 4px 0 0; }
+      label { font-size: 13px; display: block; }
+      input, select { width: 100%; border: 1px solid #d4d4d4; border-radius: 10px; padding: 10px; font-size: 15px; margin-top: 4px; font-family: inherit; background: #fff; }
+      input:focus, select:focus { outline: 2px solid #0a0a0a; border-color: #0a0a0a; }
+      .btn { width: 100%; padding: 13px; border-radius: 12px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: .5px; }
+      .btn:disabled { background: #d4d4d4; cursor: not-allowed; }
+      .btn-noir { background: #FFD500; color: #0a0a0a; } .btn-noir:hover:not(:disabled) { background: #ffdf33; }
+      .btn-rouge { background: #dc2626; color: #fff; } .btn-rouge:hover:not(:disabled) { background: #ef4444; }
+      .btn-gris { background: #e5e5e5; color: #0a0a0a; } .btn-gris:hover { background: #d4d4d4; }
+      .rang { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #f4f4f2; }
+      .rang .ico { font-size: 26px; }
+      .rang .flex1 { flex: 1; }
+      .rang .nom { font-weight: 700; margin: 0; }
+      .rang .champs { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+      .rang input { width: 76px; padding: 6px; margin: 0; }
+      .rang .tag { padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; }
+      .tag-visible { background: #FFD500; color: #0a0a0a; }
+      .tag-masque { background: #e5e5e5; color: #737373; }
+      .tag-supp { background: #fee2e2; color: #dc2626; }
+      #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0a0a0a; color: #fff; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,.3); display: none; }
+      .vide { text-align: center; color: #737373; padding: 24px; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="marque">
+        <svg viewBox="0 0 100 100" aria-label="Fou — Fianchetto du Roi">
+          <g fill="#FFD500">
+            <circle cx="50" cy="11" r="6"/>
+            <path d="M50 20 C61 30 67 43 67 53 C67 65 60 71 50 71 C40 71 33 65 33 53 C33 43 39 30 50 20 Z"/>
+            <line x1="42" y1="34" x2="57" y2="52" stroke="#0a0a0a" stroke-width="5" stroke-linecap="round"/>
+            <path d="M33 72 h34 q8 3 5 8 H28 q-3 -5 5 -8 Z"/>
+            <rect x="24" y="82" width="52" height="6" rx="2"/>
+          </g>
+        </svg>
+        <div>
+          <h1>Fianchetto du Roi</h1>
+          <p class="sous">Buvette — Club d'échecs de Rosporden</p>
+        </div>
+      </div>
+    </header>
+    <div class="bandeau"></div>
+
+    <nav>
+      <button data-onglet="vente" class="actif">🛒 Vente</button>
+      <button data-onglet="bilan">📊 Bilan</button>
+      <button data-onglet="inventaire">📦 Inventaire</button>
+      <button data-onglet="admin">⚙️ Admin</button>
+    </nav>
+
+    <main id="main"></main>
+    <div id="toast"></div>
+
+    <script>
+      var CLE = "buvette-echecs-v1";
+      var PRODUITS_DEFAUT = [
+        { id: "cafe", nom: "Café", icone: "☕", prix: 0.5, stock: 50, actif: true },
+        { id: "mars", nom: "Mars", icone: "🍫", prix: 1.0, stock: 30, actif: true },
+        { id: "gateau", nom: "Gâteau", icone: "🍰", prix: 1.0, stock: 20, actif: true },
+        { id: "eau", nom: "Eau", icone: "💧", prix: 0.5, stock: 40, actif: true },
+        { id: "jus", nom: "Jus d'orange", icone: "🧃", prix: 1.0, stock: 25, actif: true },
+        { id: "sandwich", nom: "Sandwich", icone: "🥪", prix: 2.5, stock: 15, actif: true }
+      ];
+
+      var etat = charger();
+      var onglet = "vente";
+      var selection = null;
+      var achatSel = "";
+      var commande = []; // [{ produitId, qte }]
+      var toastTimer = null;
+
+      function charger() {
+        try {
+          var brut = localStorage.getItem(CLE);
+          if (brut) return JSON.parse(brut);
+        } catch (e) {}
+        return { produits: PRODUITS_DEFAUT, mouvements: [], caisse: 0 };
+      }
+      function sauver() {
+        try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) {}
+      }
+      function euro(n) {
+        return n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+      }
+      function nouvelId() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+      }
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      }
+      function flash(msg) {
+        var t = document.getElementById("toast");
+        t.textContent = msg;
+        t.style.display = "block";
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.style.display = "none"; }, 1800);
+      }
+
+      function enregistrerVente(p, payant) {
+        etat.mouvements.unshift({
+          id: nouvelId(), date: new Date().toISOString(),
+          type: payant ? "vente" : "gratuit", produitId: p.id,
+          produitNom: p.nom, quantite: 1, montant: payant ? p.prix : 0
+        });
+        p.stock = Math.max(0, p.stock - 1);
+        if (payant) etat.caisse += p.prix;
+        sauver();
+        flash(p.icone + " " + p.nom + (payant ? " enregistré — " + euro(p.prix) : " offert (gratuit)"));
+        selection = null;
+        rendre();
+      }
+
+      function enregistrerAchat(p, qte, montant) {
+        etat.mouvements.unshift({
+          id: nouvelId(), date: new Date().toISOString(),
+          type: "achat", produitId: p.id, produitNom: p.nom,
+          quantite: qte, montant: -montant
+        });
+        p.stock += qte;
+        etat.caisse -= montant;
+        achatSel = "";
+        sauver();
+        flash("📦 " + qte + " × " + p.nom + " ajoutés au stock (−" + euro(montant) + ")");
+        rendre();
+      }
+
+      function enregistrerSortie(libelle, montant) {
+        etat.mouvements.unshift({
+          id: nouvelId(), date: new Date().toISOString(),
+          type: "sortie", produitId: null, produitNom: libelle,
+          quantite: 1, montant: -montant
+        });
+        etat.caisse -= montant;
+        sauver();
+        flash("Sortie enregistrée : " + libelle + " (−" + euro(montant) + ")");
+        rendre();
+      }
+
+      function annulerMouvement(id) {
+        var m = etat.mouvements.find(function (x) { return x.id === id; });
+        if (!m) return;
+        var p = m.produitId ? etat.produits.find(function (x) { return x.id === m.produitId; }) : null;
+        if (m.type === "vente" || m.type === "gratuit") {
+          if (p) p.stock += m.quantite;
+          if (m.montant > 0) etat.caisse -= m.montant;
+        } else if (m.type === "achat") {
+          if (p) p.stock = Math.max(0, p.stock - m.quantite);
+          etat.caisse += Math.abs(m.montant);
+        } else if (m.type === "sortie") {
+          etat.caisse += Math.abs(m.montant);
+        }
+        etat.mouvements = etat.mouvements.filter(function (x) { return x.id !== id; });
+        sauver();
+        flash("↩️ Mouvement annulé : " + m.produitNom);
+        rendre();
+      }
+
+      function enregistrerCommande(payant) {
+        var total = 0;
+        var nbArticles = 0;
+        commande.forEach(function (l) {
+          var p = etat.produits.find(function (x) { return x.id === l.produitId; });
+          if (!p) return;
+          etat.mouvements.unshift({
+            id: nouvelId(), date: new Date().toISOString(),
+            type: payant ? "vente" : "gratuit", produitId: p.id,
+            produitNom: p.nom, quantite: l.qte, montant: payant ? p.prix * l.qte : 0
+          });
+          p.stock = Math.max(0, p.stock - l.qte);
+          if (payant) { total += p.prix * l.qte; etat.caisse += p.prix * l.qte; }
+          nbArticles += l.qte;
+        });
+        commande = [];
+        sauver();
+        flash("🧾 Commande de " + nbArticles + " article(s) " + (payant ? "encaissée — " + euro(total) : "offerte (gratuit)"));
+        rendre();
+      }
+
+      // ---------- Rendu ----------
+
+      function rendre() {
+        var mvs = etat.mouvements;
+        var ventes = mvs.filter(function (m) { return m.type === "vente"; });
+        var gratuits = mvs.filter(function (m) { return m.type === "gratuit"; });
+        var achats = mvs.filter(function (m) { return m.type === "achat"; });
+        var sorties = mvs.filter(function (m) { return m.type === "sortie"; });
+        var totalEntrees = ventes.reduce(function (s, m) { return s + m.montant; }, 0);
+        var totalAchats = achats.reduce(function (s, m) { return s + Math.abs(m.montant); }, 0);
+        var totalSorties = sorties.reduce(function (s, m) { return s + Math.abs(m.montant); }, 0);
+
+        var main = document.getElementById("main");
+        var html = "";
+
+        // ---- Page VENTE : aucun montant global visible ----
+        if (onglet === "vente") {
+          // Mode commande : panier multi-produits
+          var totalCmd = 0;
+          commande.forEach(function (l) {
+            var pp = etat.produits.find(function (x) { return x.id === l.produitId; });
+            if (pp) totalCmd += pp.prix * l.qte;
+          });
+          html += '<div class="panel" style="border:3px solid #FFD500;margin-bottom:12px">' +
+            '<p style="margin:0 0 10px;font-weight:800;font-size:16px">🧾 Commande</p>';
+          if (commande.length === 0) {
+            html += '<p style="margin:0;color:#737373;font-size:14px">Sélectionne plusieurs produits ci-dessous, puis valide tout d\'un coup. Le total s\'additionne ici.</p>';
+          } else {
+            html += '<ul style="list-style:none;margin:0;padding:0">';
+            commande.forEach(function (l, i) {
+              var pp = etat.produits.find(function (x) { return x.id === l.produitId; });
+              if (!pp) return;
+              html += '<li style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f4f4f2;font-size:14px">' +
+                '<span><b>' + pp.icone + " " + esc(pp.nom) + "</b> ×" + l.qte + " — " + euro(pp.prix * l.qte) + '</span>' +
+                '<button data-retirer="' + i + '" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer">✕ Retirer</button></li>';
+            });
+            html += '</ul>' +
+              '<p style="text-align:right;font-weight:800;font-size:19px;margin:12px 0 0">Total : ' + euro(totalCmd) + '</p>' +
+              '<div class="deux" style="margin-top:12px">' +
+              '<button class="btn-gros jaune" style="padding:18px 8px;font-size:16px" data-act="cmd-paye">💶 Payé<span class="sous">' + euro(totalCmd) + '</span></button>' +
+              '<button class="btn-gros blanc" style="padding:18px 8px;font-size:16px" data-act="cmd-gratuit">🎁 Gratuit<span class="sous">tout offert</span></button></div>' +
+              '<button class="btn btn-gris" style="margin-top:10px" data-act="cmd-vider">🗑️ Vider la commande</button>';
+          }
+          html += '</div>';
+
+          if (selection) {
+            html += '<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+              '<p style="font-weight:800;font-size:17px;margin:0">' + selection.icone + " " + esc(selection.nom) + " — " + euro(selection.prix) + '</p>' +
+              '<button data-act="annuler" style="background:none;border:none;font-size:20px;cursor:pointer;color:#a3a3a3">✕</button></div>' +
+              '<div class="deux">' +
+              '<button class="btn-gros jaune" data-act="payant">💶 Payant<span class="sous">' + euro(selection.prix) + '</span></button>' +
+              '<button class="btn-gros blanc" data-act="gratuit">🎁 Gratuit<span class="sous">0,00 €</span></button>' +
+              '</div>' +
+              '<button class="btn btn-gris" style="margin-top:10px" data-act="ajouter-cmd">➕ Ajouter à la commande (plusieurs produits)</button></div>';
+          }
+
+          var actifs = etat.produits.filter(function (p) { return p.actif; });
+          html += '<div class="grille">';
+          if (actifs.length === 0) {
+            html += '<p class="vide" style="grid-column:1/-1">Aucun produit actif. Ajoutez-en dans l\'onglet ⚙️ Admin.</p>';
+          }
+          actifs.forEach(function (p) {
+            html += '<button class="carre" data-produit="' + p.id + '"' + (p.stock <= 0 ? " disabled" : "") + '>' +
+              '<span class="ico">' + p.icone + '</span><span class="nom">' + esc(p.nom) + '</span>' +
+              '<span class="info">' + euro(p.prix) + " · " + p.stock + " restants</span></button>";
+          });
+          html += '</div>';
+        }
+
+        // ---- Page BILAN : tous les montants ici ----
+        if (onglet === "bilan") {
+          var solde = totalEntrees - totalAchats - totalSorties;
+          html += '<div class="stats">' +
+            '<div class="stat"><p class="l">Recettes du jour</p><p class="v" style="color:#047857">' + euro(totalEntrees) + '</p></div>' +
+            '<div class="stat"><p class="l">Ventes payantes</p><p class="v">' + ventes.length + '</p></div>' +
+            '<div class="stat"><p class="l">Offerts</p><p class="v">' + gratuits.length + '</p></div></div>';
+
+          html += '<div class="deux" style="margin-bottom:12px">' +
+            '<div class="card-ent"><p class="l">Entrées (ventes)</p><p class="v">+' + euro(totalEntrees) + '</p></div>' +
+            '<div class="card-sor"><p class="l">Sorties (achats + dépenses)</p><p class="v">−' + euro(totalAchats + totalSorties) + '</p></div></div>';
+          html += '<div class="solde"><div><p class="l">Solde de la journée</p>' +
+            '<p class="v" style="color:' + (solde >= 0 ? "#4ade80" : "#f87171") + '">' + (solde >= 0 ? "+" : "") + euro(solde) + '</p></div>' +
+            '<div style="text-align:right"><p class="l">En caisse</p><p style="font-weight:700;margin:4px 0 0">' + euro(etat.caisse) + '</p></div></div>';
+
+          html += '<div class="bloc"><h3>Historique des mouvements</h3>';
+          if (mvs.length === 0) {
+            html += '<p class="vide">Aucun mouvement aujourd\'hui.</p>';
+          } else {
+            html += '<ul>';
+            mvs.forEach(function (m) {
+              var ic = m.type === "vente" ? "💰" : m.type === "gratuit" ? "🎁" : m.type === "achat" ? "📦" : "💸";
+              var cls = m.montant > 0 ? "pos" : m.montant < 0 ? "neg" : "nul";
+              var heure = new Date(m.date).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+              html += '<li><div><b>' + ic + " " + esc(m.produitNom) + "</b>" +
+                (m.quantite > 1 ? ' <span style="color:#737373">×' + m.quantite + "</span>" : "") +
+                '<p class="heure">' + heure + '</p></div>' +
+                '<div style="display:flex;align-items:center;gap:8px">' +
+                '<span class="' + cls + '">' + (m.montant > 0 ? "+" : "") + euro(m.montant) + '</span>' +
+                '<button data-annuler-mvt="' + m.id + '" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer">↩️ Annuler</button>' +
+                '</div></li>';
+            });
+            html += '</ul>';
+          }
+          html += '</div>';
+          html += '<button class="btn btn-noir" data-act="cloturer">🌙 Clôturer la journée</button>';
+        }
+
+        if (onglet === "inventaire") {
+          html += '<h2>📦 Stock restant</h2><div class="bloc">';
+          etat.produits.forEach(function (pr) {
+            var vendus = mvs.filter(function (m) {
+              return m.produitId === pr.id && (m.type === "vente" || m.type === "gratuit");
+            }).reduce(function (s, m) { return s + m.quantite; }, 0);
+            html += '<div class="rang"><span class="ico">' + pr.icone + '</span>' +
+              '<div class="flex1"><p class="nom">' + esc(pr.nom) + '</p>' +
+              '<p style="font-size:13px;color:#525252;margin:4px 0 0">Vendus aujourd\'hui : <b>' + vendus + '</b> · Restants : <b>' + pr.stock + '</b></p></div></div>';
+          });
+          html += '</div>';
+
+          html += '<h2>🛍️ Enregistrer un achat (réapprovisionnement)</h2><div class="panel" style="border:2px solid #e5e5e5">';
+          html += '<label>Produit<select id="sel-achat"><option value="">— Choisir un produit —</option>';
+          etat.produits.forEach(function (pr) {
+            html += '<option value="' + pr.id + '"' + (achatSel === pr.id ? " selected" : "") + '>' + pr.icone + " " + esc(pr.nom) + '</option>';
+          });
+          html += '</select></label>';
+          if (achatSel) {
+            html += '<div class="deux" style="margin-top:10px">' +
+              '<label>Quantité achetée<input type="number" id="inp-qte" min="1" value="1"></label>' +
+              '<label>Somme payée (€)<input type="number" id="inp-montant" min="0" step="0.01" value="0"></label></div>';
+          }
+          html += '<button class="btn btn-noir" style="margin-top:12px" data-act="achat"' + (!achatSel ? " disabled" : "") + '>Ajouter au stock</button></div>';
+
+          html += '<h2>💸 Dépense libre (sortie de caisse)</h2><div class="panel" style="border:2px solid #e5e5e5">';
+          html += '<label>Libellé (ex : course, remboursement…)<input type="text" id="inp-libelle" placeholder="Ex : courses supermarché"></label>' +
+            '<label style="margin-top:10px">Montant (€)<input type="number" id="inp-montant-sortie" min="0" step="0.01" value="0"></label>' +
+            '<button class="btn btn-rouge" style="margin-top:12px" data-act="sortie">Enregistrer la sortie</button></div>';
+        }
+
+        if (onglet === "admin") {
+          html += '<h2>➕ Nouveau produit</h2><div class="panel" style="border:2px solid #e5e5e5">' +
+            '<div class="deux" style="grid-template-columns:2fr 1fr">' +
+            '<label>Nom<input type="text" id="ad-nom" placeholder="Ex : Chocolat chaud"></label>' +
+            '<label>Icône (emoji)<input type="text" id="ad-icone" value="🥤" style="text-align:center;font-size:18px"></label></div>' +
+            '<div class="deux" style="margin-top:10px">' +
+            '<label>Prix de vente (€)<input type="number" id="ad-prix" min="0" step="0.05" value="1"></label>' +
+            '<label>Stock initial<input type="number" id="ad-stock" min="0" value="0"></label></div>' +
+            '<button class="btn btn-noir" style="margin-top:12px" data-act="ajouter-produit">Ajouter le produit</button></div>';
+
+          html += '<h2>📋 Produits configurés</h2><div class="bloc">';
+          etat.produits.forEach(function (pr) {
+            html += '<div class="rang"><span class="ico">' + pr.icone + '</span><div class="flex1">' +
+              '<p class="nom">' + esc(pr.nom) + '</p><div class="champs">' +
+              '<input type="number" min="0" step="0.05" value="' + pr.prix + '" data-prix="' + pr.id + '"> €' +
+              '<input type="number" min="0" value="' + pr.stock + '" data-stock="' + pr.id + '"> en stock</div></div>' +
+              '<button class="tag ' + (pr.actif ? "tag-visible" : "tag-masque") + '" data-toggle="' + pr.id + '">' + (pr.actif ? "Visible" : "Masqué") + '</button>' +
+              '<button class="tag tag-supp" data-supp="' + pr.id + '">Supprimer</button></div>';
+          });
+          html += '</div>';
+          html += '<button class="btn btn-gris" data-act="reset-all">♻️ Réinitialiser toute l\'application</button>';
+        }
+
+        main.innerHTML = html;
+        document.querySelectorAll("nav button").forEach(function (b) {
+          b.classList.toggle("actif", b.dataset.onglet === onglet);
+        });
+      }
+
+      // ---------- Événements ----------
+
+      document.querySelector("nav").addEventListener("click", function (e) {
+        var b = e.target.closest("button");
+        if (!b) return;
+        onglet = b.dataset.onglet;
+        selection = null;
+        rendre();
+      });
+
+      document.getElementById("main").addEventListener("click", function (e) {
+        var el = e.target.closest("[data-produit],[data-act],[data-toggle],[data-supp],[data-retirer],[data-annuler-mvt]");
+        if (!el) return;
+
+        if (el.dataset.retirer !== undefined) {
+          commande.splice(Number(el.dataset.retirer), 1);
+          rendre();
+          return;
+        }
+        if (el.dataset.annulerMvt) {
+          annulerMouvement(el.dataset.annulerMvt);
+          return;
+        }
+        if (el.dataset.produit) {
+          var p = etat.produits.find(function (x) { return x.id === el.dataset.produit; });
+          if (p) { selection = p; rendre(); }
+          return;
+        }
+        var act = el.dataset.act;
+        if (act === "annuler") { selection = null; rendre(); }
+        if (act === "payant" && selection) enregistrerVente(selection, true);
+        if (act === "gratuit" && selection) enregistrerVente(selection, false);
+        if (act === "ajouter-cmd" && selection) {
+          var ligne = commande.find(function (l) { return l.produitId === selection.id; });
+          if (ligne) ligne.qte += 1;
+          else commande.push({ produitId: selection.id, qte: 1 });
+          flash(selection.icone + " " + selection.nom + " ajouté à la commande");
+          selection = null;
+          rendre();
+        }
+        if (act === "cmd-paye" && commande.length) enregistrerCommande(true);
+        if (act === "cmd-gratuit" && commande.length) enregistrerCommande(false);
+        if (act === "cmd-vider") { commande = []; rendre(); }
+        if (act === "cloturer") {
+          if (confirm("Clôturer la journée ? Cela efface tous les mouvements et remet le bilan à zéro (les produits et le stock sont conservés).")) {
+            etat.mouvements = []; etat.caisse = 0; sauver(); flash("Journée clôturée ✅"); rendre();
+          }
+        }
+        if (act === "achat") {
+          var pr = etat.produits.find(function (x) { return x.id === achatSel; });
+          var q = parseInt(document.getElementById("inp-qte").value) || 1;
+          var m = parseFloat(document.getElementById("inp-montant").value) || 0;
+          if (pr) enregistrerAchat(pr, Math.max(1, q), Math.max(0, m));
+        }
+        if (act === "sortie") {
+          var lib = (document.getElementById("inp-libelle").value || "").trim();
+          var ms = parseFloat(document.getElementById("inp-montant-sortie").value) || 0;
+          if (lib && ms > 0) enregistrerSortie(lib, ms);
+          else flash("⚠️ Indiquez un libellé et un montant");
+        }
+        if (act === "ajouter-produit") {
+          var nom = (document.getElementById("ad-nom").value || "").trim();
+          var icone = document.getElementById("ad-icone").value || "🥤";
+          var prix = parseFloat(document.getElementById("ad-prix").value) || 0;
+          var stock = parseInt(document.getElementById("ad-stock").value) || 0;
+          if (!nom) { flash("⚠️ Donne un nom au produit"); return; }
+          etat.produits.push({ id: nouvelId(), nom: nom, icone: icone, prix: Math.max(0, prix), stock: Math.max(0, stock), actif: true });
+          sauver(); flash(nom + " ajouté ✅"); rendre();
+        }
+        if (act === "reset-all") {
+          if (confirm("Tout réinitialiser ? Produits, mouvements et caisse reviennent aux valeurs de départ.")) {
+            etat = { produits: JSON.parse(JSON.stringify(PRODUITS_DEFAUT)), mouvements: [], caisse: 0 };
+            sauver(); flash("App réinitialisée"); rendre();
+          }
+        }
+        if (el.dataset.toggle) {
+          var t = etat.produits.find(function (x) { return x.id === el.dataset.toggle; });
+          if (t) { t.actif = !t.actif; sauver(); rendre(); }
+        }
+        if (el.dataset.supp) {
+          var s = etat.produits.find(function (x) { return x.id === el.dataset.supp; });
+          if (s && confirm("Supprimer « " + s.nom + " » ?")) {
+            etat.produits = etat.produits.filter(function (x) { return x.id !== s.id; });
+            sauver(); rendre();
+          }
+        }
+      });
+
+      document.getElementById("main").addEventListener("change", function (e) {
+        var t = e.target;
+        if (t.id === "sel-achat") { achatSel = t.value; rendre(); }
+        if (t.dataset.prix) {
+          var p = etat.produits.find(function (x) { return x.id === t.dataset.prix; });
+          if (p) { p.prix = Math.max(0, parseFloat(t.value) || 0); sauver(); }
+        }
+        if (t.dataset.stock) {
+          var pr2 = etat.produits.find(function (x) { return x.id === t.dataset.stock; });
+          if (pr2) { pr2.stock = Math.max(0, parseInt(t.value) || 0); sauver(); }
+        }
+      });
+
+      rendre();
+    </script>
+  </body>
+</html>
